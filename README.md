@@ -1,4 +1,4 @@
-# Azure Frontdoor based CORS Proxy for Native Authentication APIs using Azure Developer CLI
+# Azure API Management based CORS Proxy for Native Authentication APIs using Azure Developer CLI
 
 This repository contains an Azure template deployed to Azure using Azure Developer CLI (`azd`). The template uses APIM Management to enable Single Page Applications (SPA) to use External ID Native Authentication APIs and SDKs. It will insert the appropriate CORS headers in all responses to the SPA.
 
