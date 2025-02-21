@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+# This azd project only has infrastructure code, no application code.
+name: ms-identity-ciam-cors-proxy-apim

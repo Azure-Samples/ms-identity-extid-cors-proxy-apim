@@ -1,0 +1,1685 @@
+openapi: 3.0.0
+info:
+  title: Entra External ID - Native Auth API
+  description: |-
+    Microsoft Entra's native authentication enables you to host the user interface of your app in the
+    client application instead of delegating authentication to browsers, resulting in a natively 
+    integrated authentication experience. As a developer, you have full control over the look and 
+    feel of the sign-in interface.
+
+    When a call to the API endpoints is successful, you receive both an ID token for user identification 
+    and an access token to call protected APIs. All responses from the API are in a JSON format.
+
+    Microsoft Entra's native authentication API supports sign-up and sign-in for two authentication methods:
+    - Email with password, which supports sign-up and sign-in with an email and password, 
+           and self-service password reset (SSPR).
+    - Email one-time passcode, which supports sign-up and sign-in with email one-time passcode.
+
+    Every time you call an endpoint in any of the flows, sign-in, sign-up, or SSPR, the endpoint includes 
+    a continuation token in its response. The continuation token is a unique identifier Microsoft 
+    Entra ID uses to maintain state between calls to different endpoints within the same flow. You must 
+    include this token in the subsequent requests in the same flow.
+
+    Each continuation token is valid for a specific period and can only be used for the subsequent requests 
+    within the same flow.
+
+    API Reference: https://learn.microsoft.com/en-us/entra/identity-platform/reference-native-authentication-api
+  version: 0.0.0
+tags: []
+paths:
+  /oauth2/v2.0/challenge:
+    post:
+      operationId: oauth2Challenge
+      description: |-
+        Your app calls this endpoint with a list of challenge types supported by Microsoft Entra. 
+        Microsoft Entra then selects one of the supported authentication methods for the user to
+        authenticate with.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/ChallengeError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChallengeRequest'
+  /oauth2/v2.0/initiate:
+    post:
+      operationId: oauth2Initiate
+      description: |-
+        The authentication flow begins with the application making a POST request to the `/initiate` 
+        endpoint to start the sign-in flow.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oauth2InitiateResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/Oauth2InitiateError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Oauth2InitiateRequest'
+  /oauth2/v2.0/token:
+    post:
+      operationId: oauth2Token
+      description: |-
+        Oauth 2.0 Token Endpoint.
+
+        For sign-up and sign-in, the app needs to make a request once all challenges have been 
+        completed to the `/token` endpoint to get an access token.
+
+        Depending on the flow, different grant types are allowed.  For Sign-up, the grant type is
+        `continuation_token`. For Sign-in, the allowed grant types are`password` or `oob`.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oauth2TokenResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oauth2TokenError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Oauth2TokenRequest'
+  /resetpassword/v1.0/challenge:
+    post:
+      operationId: resetPasswordChallenge
+      description: |-
+        The app uses the continuation token acquired from the previous step to 
+        request Microsoft Entra to select one of the supported challenge types for 
+        the user to authenticate with. The app makes a POST request to the 
+        `/challenge` endpoint. If this request is successful, Microsoft Entra sends
+        a one-time passcode to the user's account email. At the moment, we only 
+        support email OTP.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/ChallengeError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChallengeRequest'
+  /resetpassword/v1.0/continue:
+    post:
+      operationId: resetPasswordContinue
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordContinueResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordContinueError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordContinueRequest'
+  /resetpassword/v1.0/poll_completion:
+    post:
+      operationId: resetPasswordPollCompletion
+      description: |-
+        The app can use the `/poll_completion` endpoint to poll Microsoft Entra for
+        password reset status. The minimum amount of time in seconds that the app should
+        wait between polling requests is returned from the `/submit` endpoint in the
+        `poll_interval` parameter.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordPollCompletionResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordPollCompletionError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordPollCompletionRequest'
+  /resetpassword/v1.0/start:
+    post:
+      operationId: resetPasswordStart
+      description: |-
+        If you use email and password as the authentication method in your app, use
+        the self-service password reset (SSPR) API to enable customer users to reset
+        their password. Use this API for forgot password or change password scenarios.
+
+        The password reset flow starts with the app making a POST request to the 
+        `/start` endpoint to start the self-service password reset flow.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordStartResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/ResetPasswordStartError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordStartRequest'
+  /resetpassword/v1.0/submit:
+    post:
+      operationId: resetPasswordSubmit
+      description: |-
+        The app collects a new password from the user, then uses the continuation
+        token issued by the `/continue` endpoint to submit the password by making 
+        a POST request to the `/submit` endpoint.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordSubmitResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordSubmitError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordSubmitRequest'
+  /signup/v1.0/challenge:
+    post:
+      operationId: signupChallenge
+      description: |-
+        Your app calls this endpoint with a list of challenge types supported by Microsoft Entra. 
+        Microsoft Entra then selects one of the supported authentication methods for the user to
+        authenticate with.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/ChallengeError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChallengeRequest'
+  /signup/v1.0/continue:
+    post:
+      operationId: signupContinue
+      description: |-
+        This endpoint helps to continue the flow to create the user account or interrupt the flow due to 
+        missing requirements such as password policy requirements or wrong attribute formats. This endpoint 
+        generates a continuation token, then returns it to the app. The endpoint can return a response to 
+        indicate to the application to use a web-based authentication flow if the application doesn't support
+        an authentication method chosen by Microsoft Entra.
+
+        After successfully calling the continue endpoint, the application must call the `/token` endpoint to
+        finally request for security tokens. The app needs to include the continuation token it acquires 
+        from the last successful call to the continue endpoint.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupContinueResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/SignupContinueError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignupContinueRequest'
+  /signup/v1.0/start:
+    post:
+      operationId: signupStart
+      description: |-
+        This endpoint starts the sign-up flow. You pass valid application ID, new username, 
+        and challenge type, then you get back a new continuation token. The endpoint can return 
+        a response to indicate to the application to use a web authentication flow if the 
+        application’s chosen authentication methods aren't supported by Microsoft Entra.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigninStartResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/RedirectResponse'
+                  - $ref: '#/components/schemas/SigninStartError'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignupStartRequest'
+components:
+  schemas:
+    BindingMethod:
+      type: string
+      enum:
+        - prompt
+    ChallengeChannel:
+      type: string
+      enum:
+        - email
+    ChallengeError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/ChallengeErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              type: string
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    ChallengeErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - expired_token
+        - unsupported_challenge_type
+        - invalid_grant
+    ChallengeRequest:
+      type: object
+      required:
+        - continuationToken
+        - client_id
+      properties:
+        continuationToken:
+          type: string
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        challenge_type:
+          type: string
+          description: |-
+            A space-separated list of authorization challenge type strings that the app supports such as
+            `oob` `password` `redirect`. The list must always include the redirect challenge type. The value is
+            expected to oob redirect for email one-time passcode and oob password redirect for email with
+            password authentication method.
+    ChallengeResponse:
+      type: object
+      required:
+        - continuationToken
+        - challenge_type
+      properties:
+        continuationToken:
+          type: string
+        challenge_type:
+          allOf:
+            - $ref: '#/components/schemas/ChallengeResponseChallengeType'
+          description: Challenge type selected for the user to authenticate with.
+        interval:
+          type: integer
+          format: int32
+          description: The length of time in seconds the app needs to wait before it attempts to resend OTP.
+        binding_method:
+          type: string
+          enum:
+            - prompt
+          description: |-
+            The only valid value is `prompt`. This parameter can be used in the future to offer more ways
+            to the user to enter the one-time passcode. Issued if `challenge_type` is `oob`
+        challenge_channel:
+          type: string
+          enum:
+            - email
+          description: |-
+            The type of the channel through which the one-time passcode was sent. At the moment, only `email` 
+            channel is supported.
+        challenge_target_label:
+          type: string
+          description: An obfuscated email where the one-time passcode was sent.
+        code_length:
+          type: integer
+          format: int32
+          description: The length of the one-time passcode that Microsoft Entra generates.
+    ChallengeResponseChallengeType:
+      type: string
+      enum:
+        - oob
+        - password
+    ChallengeType:
+      type: string
+      enum:
+        - password
+        - oob
+        - redirect
+    CorrelationId:
+      type: string
+      format: uuid
+    ErrorAttribute:
+      type: object
+      required:
+        - name
+        - type
+        - required
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        required:
+          type: boolean
+        options:
+          type: object
+          additionalProperties:
+            type: string
+      description: Describe an attribute in the `BaseError` which is required, invalid, or needs verification.
+    GrantType:
+      type: string
+      enum:
+        - oob
+        - password
+        - attributes
+      description: The grant types accepted on sign-in and sign-up endpoints.
+    Oauth2InitiateError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/Oauth2InitiateErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/Oauth2InitiateSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    Oauth2InitiateErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_client
+        - unauthorized_client
+        - unsupported_challenge_type
+    Oauth2InitiateRequest:
+      type: object
+      required:
+        - client_id
+        - username
+        - challenge_type
+      properties:
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        username:
+          type: string
+          description: Email of the customer user that they want to sign up with, such as `contoso-consumer@contoso.com`.
+        challenge_type:
+          type: string
+          description: |-
+            A space-separated list of authorization challenge type strings that the app supports such as 
+            "`oob` `password` `redirect`". The list must always include the redirect challenge type. The 
+            value is expected to be "`oob` `redirect`"" or "`oob` `password` `redirect`"" for email with 
+            password authentication method.
+    Oauth2InitiateResponse:
+      type: object
+      required:
+        - continuationToken
+      properties:
+        continuationToken:
+          type: string
+    Oauth2InitiateSubErrorCode:
+      type: string
+      enum:
+        - nativeauthapi_disabled
+    Oauth2TokenError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/Oauth2TokenErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/Oauth2TokenSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    Oauth2TokenErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_grant
+        - unauthorized_client
+        - unsupported_grant_type
+    Oauth2TokenRequest:
+      type: object
+      required:
+        - continuationToken
+        - client_id
+        - grant_type
+        - scope
+        - username
+      properties:
+        continuationToken:
+          type: string
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        grant_type:
+          allOf:
+            - $ref: '#/components/schemas/TokenGrantType'
+          description: |-
+            The Grant Type requested. Depending on the Grant Type specified you will need to provide
+            additional parameters (i.e. for password and oob grant types)
+        scope:
+          type: string
+          description: |-
+            A space-separated list of scopes. All the scopes must be from a single resource, along with 
+            OpenID Connect (OIDC) scopes, such as `profile`, `openid`, and `email`. The app needs to 
+            include  `openid` scope for Microsoft Entra to issue an ID token. The app needs to include 
+            `offline_access` scope for Microsoft Entra to issue a refresh token.
+        username:
+          type: string
+          description: |-
+            Email of the customer user that they want to sign up with, such as `contoso-consumer@contoso.com`.
+            Used during sign-up when `grant_type` is `continuation_token`.
+        password:
+          type: string
+          description: The password value that the app collects from the customer user.
+        oob:
+          type: string
+          description: |-
+            The one-time passcode that the customer user received in their email. To resend a one-time 
+            passcode, the app needs to make a request to the `/challenge` endpoint again.
+    Oauth2TokenResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - scope
+      properties:
+        access_token:
+          type: string
+          description: |-
+            The access token that the app requested from the `/token` endpoint. The app can use this 
+            access token to request access to secured resources such as web APIs.
+        token_type:
+          type: string
+          enum:
+            - Bearer
+          description: Indicates the token type value. The only type that Microsoft Entra supports is `Bearer`.
+        expires_in:
+          type: integer
+          format: int32
+          description: The length of time in seconds the access token remains valid.
+        scope:
+          type: string
+          description: A space-separated list of scopes that the access token is valid for.
+        refresh_token:
+          type: string
+          description: |-
+            An Oauth 2.0 refresh token. The app can use this token to acquire other access tokens
+            after the current access token expires. Refresh tokens are long-lived. They can maintain 
+            access to resources for extended periods. For more detail on refreshing an access token, 
+            refer to Entra documentation.
+
+            Note: Only issued if `offline_access` scope was requested.
+        id_token:
+          type: string
+          description: |-
+            A JSON Web Token (Jwt) used to identify the customer user. The app can decode the token
+            to read information about the user who signed in. The app can cache the values and display 
+            them, and confidential clients can use this token for authorization. For more information
+            about ID tokens, refer to Entra documentation
+
+            Note: Only issued if `openid` scope is requested.
+    Oauth2TokenSubErrorCode:
+      type: string
+      enum:
+        - invalid_oob_value
+    RedirectResponse:
+      type: object
+      required:
+        - challengeType
+      properties:
+        challengeType:
+          type: string
+          enum:
+            - redirect
+          description: |-
+            Microsoft Entra returns a response that has a challenge type. The value of this challenge type
+            is redirect, which enables the app to use the web-based authentication flow.
+      description: |-
+        If an app can't support a required authentication method by Microsoft Entra, a fallback to the
+        web-based authentication flow is needed. In this scenario, Microsoft Entra informs the app by
+        returning a redirect challenge type in its response.
+    ResetPasswordContinueError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordContinueErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordContinueSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    ResetPasswordContinueErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_grant
+        - expired_token
+    ResetPasswordContinueRequest:
+      type: object
+      required:
+        - continuationToken
+        - client_id
+        - grant_type
+        - oob
+      properties:
+        continuationToken:
+          type: string
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        grant_type:
+          allOf:
+            - $ref: '#/components/schemas/ResetPasswordGrantType'
+          description: The only valid value is `oob`.
+        oob:
+          type: integer
+          format: int32
+          description: |-
+            The one-time passcode that the customer user received in their email. 
+            To resend a one-time passcode, the app needs to make a request to 
+            the `/challenge` endpoint again.
+    ResetPasswordContinueResponse:
+      type: object
+      required:
+        - continuationToken
+        - expires_in
+      properties:
+        continuationToken:
+          type: string
+        expires_in:
+          type: integer
+          format: int32
+          description: |-
+            Time in seconds before the continuation_token expires. The maximum 
+            value of `expires_in` is 600 seconds.
+    ResetPasswordContinueSubErrorCode:
+      type: string
+      enum:
+        - invalid_oob_value
+    ResetPasswordGrantType:
+      type: string
+      enum:
+        - oob
+    ResetPasswordPollCompletionError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordPollCompletionErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              type: string
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    ResetPasswordPollCompletionErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - expired_token
+    ResetPasswordPollCompletionRequest:
+      type: object
+      required:
+        - continuationToken
+        - client_id
+      properties:
+        continuationToken:
+          type: string
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+    ResetPasswordPollCompletionResponse:
+      type: object
+      required:
+        - continuationToken
+        - status
+      properties:
+        continuationToken:
+          type: string
+        status:
+          allOf:
+            - $ref: '#/components/schemas/ResetPasswordPollCompletionStatus'
+          description: |-
+            The status of the reset password request. If Microsoft Entra returns a
+            `status` of failed, the app can resubmit the new password by making another
+            request to the `/submit` endpoint and include the new continuation token.
+    ResetPasswordPollCompletionStatus:
+      type: string
+      enum:
+        - succeeded
+        - failed
+        - not_started
+        - in_progress
+      description: The status of the reset password request
+    ResetPasswordStartError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordStartErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordStartSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    ResetPasswordStartErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_client
+        - unauthorized_client
+        - unsupported_challenge_type
+        - user_not_found
+    ResetPasswordStartRequest:
+      type: object
+      required:
+        - client_id
+        - username
+        - challenge_type
+      properties:
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        username:
+          type: string
+          description: Email of the customer user that they want to sign up with, such as `contoso-consumer@contoso.com`.
+        challenge_type:
+          type: string
+          description: |-
+            A space-separated list of authorization challenge type strings that
+            the app supports such as * "`oob` `password` `redirect`". The list must * always include the `redirect` challenge type. For this request, the 
+            value is expected to contain "`oob` `redirect`".
+    ResetPasswordStartResponse:
+      type: object
+      required:
+        - continuationToken
+      properties:
+        continuationToken:
+          type: string
+    ResetPasswordStartSubErrorCode:
+      type: string
+      enum:
+        - nativeauthapi_disabled
+    ResetPasswordSubmitError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordSubmitErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/ResetPasswordSubmitSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    ResetPasswordSubmitErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_grant
+        - expired_token
+    ResetPasswordSubmitRequest:
+      type: object
+      required:
+        - continuationToken
+        - client_id
+        - new_password
+      properties:
+        continuationToken:
+          type: string
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        new_password:
+          type: string
+          description: |-
+            User’s new password. It's your responsibility to confirm that the user
+            is aware of the password they want to use by providing the password confirm
+            field in the app's UI. You must also ensure that the user is aware of what
+              constitutes a strong password per your organization's policy.
+    ResetPasswordSubmitResponse:
+      type: object
+      required:
+        - continuationToken
+        - poll_interval
+      properties:
+        continuationToken:
+          type: string
+        poll_interval:
+          type: integer
+          format: int32
+          description: |-
+            The minimum amount of time in seconds that the app should wait between
+            polling requests to check the status of the password reset request via the
+            `/poll_completion` endpoint
+    ResetPasswordSubmitSubErrorCode:
+      type: string
+      enum:
+        - password_too_weak
+        - password_too_short
+        - password_too_long
+        - password_recently_used
+        - password_banned
+        - password_is_invalid
+    SigninStartError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/SignupStartErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/SigninStartSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    SigninStartResponse:
+      type: object
+      required:
+        - continuationToken
+      properties:
+        continuationToken:
+          type: string
+    SigninStartSubErrorCode:
+      type: string
+      enum:
+        - nativeauthapi_disabled
+        - password_too_weak
+        - password_too_short
+        - password_too_long
+        - password_recently_used
+        - password_banned
+        - password_is_invalid
+        - attribute_validation_failed
+    SignupContinueError:
+      type: object
+      allOf:
+        - type: object
+          required:
+            - error
+            - error_description
+            - error_codes
+            - timestamp
+            - trace_id
+            - correlation_id
+          properties:
+            error:
+              allOf:
+                - $ref: '#/components/schemas/SignupContinueErrorCode'
+              description: An error code string that can be used to classify types of errors, and to react to errors.
+            error_description:
+              type: string
+              description: A specific error message that can help you to identify the cause of an authentication error.
+            error_codes:
+              type: array
+              items:
+                type: integer
+                format: int32
+              description: A list of Microsoft Entra-specific error codes that can help you to diagnose errors.
+            timestamp:
+              type: string
+              format: date-time
+              description: The time when the error occurred.
+            trace_id:
+              allOf:
+                - $ref: '#/components/schemas/TraceId'
+              description: A unique identifier for the request that can help you to diagnose errors.
+            correlation_id:
+              allOf:
+                - $ref: '#/components/schemas/CorrelationId'
+              description: A unique identifier for the request that can help in diagnostics across components.
+            suberror:
+              allOf:
+                - $ref: '#/components/schemas/SignupContinueSubErrorCode'
+              description: An error code string that can be used to further classify types of errors.
+            error_uri:
+              type: string
+              format: uri
+              description: URL to find out more about an error
+            continuation_token:
+              type: string
+              description: |-
+                Continuation token that Microsoft Entra returns.
+
+                NOTE: This parameter is included in the response when the error parameter's value is 
+                `attributes_required`, `verification_required`, or `attribute_validation_failed`.
+            required_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that the app needs to submit next call to continue.
+                Microsoft Entra includes this parameter in its response when the error parameter's 
+                value is `attributes_required`.
+            invalid_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attributes that failed validation. This response is possible
+                if the app submits user attributes, and the suberror parameter's value is `attribute_validation_failed`.
+            unverified_attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorAttribute'
+              description: |-
+                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                in the response when the error parameter's value is `verification_required`.
+          allOf:
+            - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
+          description: |-
+            Error Response
+            This is a 400 Bad Request response with the following payload.
+    SignupContinueErrorCode:
+      type: string
+      enum:
+        - credentials_required
+        - invalid_request
+        - invalid_grant
+        - expired_token
+        - attributes_required
+        - verification_failed
+    SignupContinueRequest:
+      type: object
+      required:
+        - continuationToken
+        - client_id
+        - grant_type
+      properties:
+        continuationToken:
+          type: string
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        grant_type:
+          allOf:
+            - $ref: '#/components/schemas/GrantType'
+          description: |-
+            A request to the `/continue` endpoint can be used to submit one-time passcode, 
+            password, or user attributes. In this case, the grant_type value is used to differentiate 
+            between these three use cases. The possible values for the grant_type are `oob`, `password`, 
+            `attributes`.
+        oob:
+          type: integer
+          format: int32
+          description: |-
+            The one-time passcode that the customer user received in their email. 
+            To resend a one-time passcode, the app needs to make a request to 
+            the `/signup/v1.0/challenge` endpoint again.
+
+            NOTE: Required when `grant_type` is `oob`.
+        password:
+          type: string
+          description: |-
+            The password value that the app collects from the customer user. It's your responsibility
+            to confirm that the user is aware of the password they want to use by providing the password
+            confirm field in the app's UI. You must also ensure that the user is aware of what constitutes a 
+            strong password per your organization's policy.
+
+            NOTE: Required when `grant_type` is `password`.
+        attributes:
+          type: string
+          description: |-
+            The user attributes values that the app collects from the customer user. The value is a string, 
+            but formatted as a JSON object whose key values are programmable name of user attributes. These 
+            attributes can be built in or custom, and required or optional. The key names of the object 
+            depend on the attributes that the administrator configured in Microsoft Entra admin center. 
+
+            NOTE: Required when `grant_type` is `attributes`.
+
+            NOTE: Microsoft Entra ignores any attributes that you submit, which don't exist.
+    SignupContinueResponse:
+      type: object
+      required:
+        - continuationToken
+      properties:
+        continuationToken:
+          type: string
+    SignupContinueSubErrorCode:
+      type: string
+      enum:
+        - invalid_oob_value
+        - attribute_validation_failed
+    SignupStartErrorCode:
+      type: string
+      enum:
+        - invalid_request
+        - invalid_client
+        - unauthorized_client
+        - unsupported_challenge_type
+        - user_already_exists
+        - invalid_grant
+    SignupStartRequest:
+      type: object
+      required:
+        - client_id
+        - username
+        - challenge_type
+      properties:
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+        username:
+          type: string
+          description: Email of the customer user that they want to sign up with, such as `contoso-consumer@contoso.com`.
+        challenge_type:
+          type: string
+          description: |-
+            A space-separated list of authorization challenge type strings that the app supports such as 
+            "`oob` `password` `redirect`". The list must always include the redirect challenge type. The 
+            value is expected to be "`oob` `redirect`"" or "`oob` `password` `redirect`"" for email with 
+            password authentication method.
+        password:
+          type: string
+          description: |-
+            The password value that the app collects from the customer user. You can submit a user's password
+            via the `/signup/v1.0/start` or later in the `/signup/v1.0/continue` endpoint. It's your responsibility
+            to confirm that the user is aware of the password they want to use by providing the password
+            confirm field in the app's UI. You must also ensure that the user is aware of what constitutes a 
+            strong password per your organization's policy. Learn more about Microsoft Entra's password policies.
+
+            NOTE: This parameter is only applicable for email with password authentication method.
+        attributes:
+          type: string
+          description: |-
+            The user attributes values that the app collects from the customer user. The value is a string, but
+            formatted as a JSON object whose key values are programmable name of user attributes. These attributes
+            can be built in or custom, and required or optional. The key names of the object depend on the 
+            attributes that the administrator configured in Microsoft Entra admin center. You can submit some or
+            all user attributes via the `/signup/v1.0/start` endpoint or later in the `/signup/v1.0/continue` endpoint. 
+
+            If you submit all the required attributes via the `/signup/v1.0/start` endpoint, you don't need to submit
+            any attributes in the /signup/v1.0/continue endpoint. However, if you submit some required attributes
+            via `/signup/v1.0/start` endpoint, you can submit the remaining required attributes later in the 
+            `/signup/v1.0/continue` endpoint. 
+
+            NOTE: Microsoft Entra ignores any attributes that you submit, which don't exist.
+    TenantId:
+      type: string
+      format: uuid
+    TokenGrantType:
+      type: string
+      enum:
+        - oob
+        - password
+        - attributes
+        - continuation_token
+      description: The Grant types accepted on the token endpoint.
+    TokenType:
+      type: string
+      enum:
+        - Bearer
+    TraceId:
+      type: string
+      format: uuid
+    TypeSpec.Http.BadRequestResponse:
+      type: object
+      description: The server could not understand the request due to invalid syntax.
+    WithClientId:
+      type: object
+      required:
+        - client_id
+      properties:
+        client_id:
+          type: string
+          description: The Application (client) ID of the app you registered in the Microsoft Entra admin center.
+    WithContinuationToken:
+      type: object
+      required:
+        - continuationToken
+      properties:
+        continuationToken:
+          type: string
+servers:
+  - url: https://{tenant_subdomain}.ciamlogin.com/{tenant_id}
+    description: Native Authentication API for Microsoft Entra External ID
+    variables:
+      tenant_subdomain:
+        default: ''
+      tenant_id:
+        default: ''
