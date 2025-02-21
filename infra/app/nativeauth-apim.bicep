@@ -16,7 +16,6 @@ param tenantSubdomain string
 @description('Azure Application Insights Name')
 param applicationInsightsName string
 
-
 resource apimLogger 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' existing = if (!empty(applicationInsightsName)) {
   name: 'app-insights-logger'
   parent: apimService
@@ -84,11 +83,13 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     ]
   }
 
-  resource apimDiagnostics 'diagnostics@2024-06-01-preview' = {
+  resource apimDiagnostics 'diagnostics' = {
     name: 'applicationinsights' // Use a supported diagnostic identifier
     properties: {
-      loggerId: '/subscriptions/${az.subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.ApiManagement/service/${apimService.name}/loggers/${apimLogger.name}'
+      loggerId: apimLogger.id
       metrics: true
     }
   }
 }
+
+output endpoint string = apimService.properties.gatewayUrl

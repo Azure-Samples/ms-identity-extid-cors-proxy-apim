@@ -86,3 +86,5 @@ module monitoring 'core/monitor/monitoring.bicep' = {
     applicationInsightsDashboardName: '${abbrs.portalDashboards}${resourceToken}'
   }
 }
+
+output CORS_PROXY_ENDPOINT string = nativeauth.outputs.endpoint
