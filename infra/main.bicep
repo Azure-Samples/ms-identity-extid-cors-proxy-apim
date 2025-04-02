@@ -16,10 +16,24 @@ param corsAllowedOrigin string
 param tenantSubdomain string
 
 // APIM
-param publisherName string = 'n/a'
-param publisherEmail string = 'noreply@example.com'
-param apiName string = 'NativeAuth'
+@description('The email address of the owner of the service')
+@minLength(1)
+param apimPublisherEmail string = 'noreply@microsoft.com'
 
+@description('The name of the owner of the service')
+@minLength(1)
+param apimPublisherName string = 'n/a'
+
+@allowed(['Developer', 'Standard', 'Premium', 'Consumption'])
+@description('The SKU of the API Management service. The SKU must be one of the following: Developer, Standard, Premium, Consumption.')
+param apimSku string = 'Developer'
+
+@allowed([0,1,2])
+@description('The number of instances of the API Management service. This parameter is only used when the SKU is not Consumption.')
+param apimSkuCount int = 0
+
+
+param apiName string = 'NativeAuth'
 param productName string = 'APIM-NATIVE_AUTH'
 param productDescription string = 'Entra External ID Native Auth APIs'
 
@@ -29,7 +43,6 @@ param logAnalyticsWorkspaceName string = ''
 param applicationInsightsName string = ''
 param apimName string = ''
 
-param apimSku string = 'Developer'
 
 var abbrs = loadJsonContent('./abbreviations.json')
 
@@ -55,8 +68,9 @@ module apim 'core/gateway/apim.bicep' = {
     location: location
     tags: tags
     sku: apimSku
-    publisherEmail: publisherEmail
-    publisherName: publisherName
+    skuCount: apimSkuCount
+    publisherEmail: apimPublisherEmail
+    publisherName: apimPublisherName
     applicationInsightsName: monitoring.outputs.applicationInsightsName
   }
 }
