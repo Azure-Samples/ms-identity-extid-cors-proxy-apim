@@ -12,7 +12,7 @@
         "value": "${AZURE_APIM_SKU=Developer}"
       },
       "apimSkuCapacity": {
-        "value": "${AZURE_APIM_SKU_CAPACITY=1}"
+        "value": "${AZURE_APIM_SKU_CAPACITY=0}"
       },
       "apimPublisherEmail": {
         "value": "${AZURE_APIM_PUBLISHER_EMAIL=noreply@microsoft.com}"
