@@ -7,6 +7,18 @@
       },
       "location": {
         "value": "${AZURE_LOCATION}"
+      },
+      "apimSku": {
+        "value": "${AZURE_APIM_SKU=Developer}"
+      },
+      "apimSkuCapacity": {
+        "value": "${AZURE_APIM_SKU_CAPACITY=1}"
+      },
+      "apimPublisherEmail": {
+        "value": "${AZURE_APIM_PUBLISHER_EMAIL=noreply@microsoft.com}"
+      },
+      "apimPublisherName": {
+        "value": "${AZURE_APIM_PUBLISHER_NAME=n/a}"
       }
     }
 }
