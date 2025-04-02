@@ -24,9 +24,9 @@ param apimPublisherEmail string = 'noreply@microsoft.com'
 @minLength(1)
 param apimPublisherName string = 'n/a'
 
-@allowed(['Developer', 'Standard', 'Premium', 'Consumption'])
-@description('The SKU of the API Management service. The SKU must be one of the following: Developer, Standard, Premium, Consumption.')
-param apimSku string = 'Developer'
+@allowed(['Consumption', 'Developer', 'BasicV2', 'StandardV2', 'Premium', 'Consumption'])
+@description('The SKU of the API Management service. The SKU must be one of the following: Consumption, Developer, BasicV2, StandardV2, Premium')
+param apimSku string = 'Consumption'
 
 @allowed([0,1,2])
 @description('The number of instances of the API Management service. This parameter is only used when the SKU is not Consumption.')

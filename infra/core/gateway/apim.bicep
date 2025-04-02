@@ -13,10 +13,14 @@ param publisherName string = 'n/a'
 
 @description('The pricing tier of this API Management service')
 @allowed([
+  'Basic'
+  'BasicV2'
   'Consumption'
   'Developer'
-  'Standard'
+  'Isolated'
   'Premium'
+  'Standard'
+  'StandardV2'
 ])
 param sku string = 'Consumption'
 
@@ -27,7 +31,7 @@ param skuCount int = 0
 @description('Azure Application Insights Name')
 param applicationInsightsName string
 
-resource apimService 'Microsoft.ApiManagement/service@2021-08-01' = {
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
   name: name
   location: location
   tags: union(tags, { 'azd-service-name': name })
@@ -58,7 +62,7 @@ resource apimService 'Microsoft.ApiManagement/service@2021-08-01' = {
   }
 }
 
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = if (!empty(applicationInsightsName)) {
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' = if (!empty(applicationInsightsName)) {
   name: 'app-insights-logger'
   parent: apimService
   properties: {
