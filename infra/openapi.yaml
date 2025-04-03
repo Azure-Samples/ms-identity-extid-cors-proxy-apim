@@ -3,24 +3,24 @@ info:
   title: Entra External ID - Native Auth API
   description: |-
     Microsoft Entra's native authentication enables you to host the user interface of your app in the
-    client application instead of delegating authentication to browsers, resulting in a natively 
-    integrated authentication experience. As a developer, you have full control over the look and 
+    client application instead of delegating authentication to browsers, resulting in a natively
+    integrated authentication experience. As a developer, you have full control over the look and
     feel of the sign-in interface.
 
-    When a call to the API endpoints is successful, you receive both an ID token for user identification 
+    When a call to the API endpoints is successful, you receive both an ID token for user identification
     and an access token to call protected APIs. All responses from the API are in a JSON format.
 
     Microsoft Entra's native authentication API supports sign-up and sign-in for two authentication methods:
-    - Email with password, which supports sign-up and sign-in with an email and password, 
+    - Email with password, which supports sign-up and sign-in with an email and password,
            and self-service password reset (SSPR).
     - Email one-time passcode, which supports sign-up and sign-in with email one-time passcode.
 
-    Every time you call an endpoint in any of the flows, sign-in, sign-up, or SSPR, the endpoint includes 
-    a continuation token in its response. The continuation token is a unique identifier Microsoft 
-    Entra ID uses to maintain state between calls to different endpoints within the same flow. You must 
+    Every time you call an endpoint in any of the flows, sign-in, sign-up, or SSPR, the endpoint includes
+    a continuation token in its response. The continuation token is a unique identifier Microsoft
+    Entra ID uses to maintain state between calls to different endpoints within the same flow. You must
     include this token in the subsequent requests in the same flow.
 
-    Each continuation token is valid for a specific period and can only be used for the subsequent requests 
+    Each continuation token is valid for a specific period and can only be used for the subsequent requests
     within the same flow.
 
     API Reference: https://learn.microsoft.com/en-us/entra/identity-platform/reference-native-authentication-api
@@ -31,7 +31,7 @@ paths:
     post:
       operationId: oauth2Challenge
       description: |-
-        Your app calls this endpoint with a list of challenge types supported by Microsoft Entra. 
+        Your app calls this endpoint with a list of challenge types supported by Microsoft Entra.
         Microsoft Entra then selects one of the supported authentication methods for the user to
         authenticate with.
       parameters: []
@@ -60,7 +60,7 @@ paths:
     post:
       operationId: oauth2Initiate
       description: |-
-        The authentication flow begins with the application making a POST request to the `/initiate` 
+        The authentication flow begins with the application making a POST request to the `/initiate`
         endpoint to start the sign-in flow.
       parameters: []
       responses:
@@ -90,7 +90,7 @@ paths:
       description: |-
         Oauth 2.0 Token Endpoint.
 
-        For sign-up and sign-in, the app needs to make a request once all challenges have been 
+        For sign-up and sign-in, the app needs to make a request once all challenges have been
         completed to the `/token` endpoint to get an access token.
 
         Depending on the flow, different grant types are allowed.  For Sign-up, the grant type is
@@ -119,11 +119,11 @@ paths:
     post:
       operationId: resetPasswordChallenge
       description: |-
-        The app uses the continuation token acquired from the previous step to 
-        request Microsoft Entra to select one of the supported challenge types for 
-        the user to authenticate with. The app makes a POST request to the 
+        The app uses the continuation token acquired from the previous step to
+        request Microsoft Entra to select one of the supported challenge types for
+        the user to authenticate with. The app makes a POST request to the
         `/challenge` endpoint. If this request is successful, Microsoft Entra sends
-        a one-time passcode to the user's account email. At the moment, we only 
+        a one-time passcode to the user's account email. At the moment, we only
         support email OTP.
       parameters: []
       responses:
@@ -206,7 +206,7 @@ paths:
         the self-service password reset (SSPR) API to enable customer users to reset
         their password. Use this API for forgot password or change password scenarios.
 
-        The password reset flow starts with the app making a POST request to the 
+        The password reset flow starts with the app making a POST request to the
         `/start` endpoint to start the self-service password reset flow.
       parameters: []
       responses:
@@ -235,7 +235,7 @@ paths:
       operationId: resetPasswordSubmit
       description: |-
         The app collects a new password from the user, then uses the continuation
-        token issued by the `/continue` endpoint to submit the password by making 
+        token issued by the `/continue` endpoint to submit the password by making
         a POST request to the `/submit` endpoint.
       parameters: []
       responses:
@@ -261,7 +261,7 @@ paths:
     post:
       operationId: signupChallenge
       description: |-
-        Your app calls this endpoint with a list of challenge types supported by Microsoft Entra. 
+        Your app calls this endpoint with a list of challenge types supported by Microsoft Entra.
         Microsoft Entra then selects one of the supported authentication methods for the user to
         authenticate with.
       parameters: []
@@ -290,14 +290,14 @@ paths:
     post:
       operationId: signupContinue
       description: |-
-        This endpoint helps to continue the flow to create the user account or interrupt the flow due to 
-        missing requirements such as password policy requirements or wrong attribute formats. This endpoint 
-        generates a continuation token, then returns it to the app. The endpoint can return a response to 
+        This endpoint helps to continue the flow to create the user account or interrupt the flow due to
+        missing requirements such as password policy requirements or wrong attribute formats. This endpoint
+        generates a continuation token, then returns it to the app. The endpoint can return a response to
         indicate to the application to use a web-based authentication flow if the application doesn't support
         an authentication method chosen by Microsoft Entra.
 
         After successfully calling the continue endpoint, the application must call the `/token` endpoint to
-        finally request for security tokens. The app needs to include the continuation token it acquires 
+        finally request for security tokens. The app needs to include the continuation token it acquires
         from the last successful call to the continue endpoint.
       parameters: []
       responses:
@@ -325,9 +325,9 @@ paths:
     post:
       operationId: signupStart
       description: |-
-        This endpoint starts the sign-up flow. You pass valid application ID, new username, 
-        and challenge type, then you get back a new continuation token. The endpoint can return 
-        a response to indicate to the application to use a web authentication flow if the 
+        This endpoint starts the sign-up flow. You pass valid application ID, new username,
+        and challenge type, then you get back a new continuation token. The endpoint can return
+        a response to indicate to the application to use a web authentication flow if the
         application’s chosen authentication methods aren't supported by Microsoft Entra.
       parameters: []
       responses:
@@ -410,7 +410,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -418,7 +418,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -432,7 +432,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -492,7 +492,7 @@ components:
           enum:
             - email
           description: |-
-            The type of the channel through which the one-time passcode was sent. At the moment, only `email` 
+            The type of the channel through which the one-time passcode was sent. At the moment, only `email`
             channel is supported.
         challenge_target_label:
           type: string
@@ -590,7 +590,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -598,7 +598,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -612,7 +612,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -642,9 +642,9 @@ components:
         challenge_type:
           type: string
           description: |-
-            A space-separated list of authorization challenge type strings that the app supports such as 
-            "`oob` `password` `redirect`". The list must always include the redirect challenge type. The 
-            value is expected to be "`oob` `redirect`"" or "`oob` `password` `redirect`"" for email with 
+            A space-separated list of authorization challenge type strings that the app supports such as
+            "`oob` `password` `redirect`". The list must always include the redirect challenge type. The
+            value is expected to be "`oob` `redirect`"" or "`oob` `password` `redirect`"" for email with
             password authentication method.
     Oauth2InitiateResponse:
       type: object
@@ -707,7 +707,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -715,7 +715,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -729,7 +729,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -766,9 +766,9 @@ components:
         scope:
           type: string
           description: |-
-            A space-separated list of scopes. All the scopes must be from a single resource, along with 
-            OpenID Connect (OIDC) scopes, such as `profile`, `openid`, and `email`. The app needs to 
-            include  `openid` scope for Microsoft Entra to issue an ID token. The app needs to include 
+            A space-separated list of scopes. All the scopes must be from a single resource, along with
+            OpenID Connect (OIDC) scopes, such as `profile`, `openid`, and `email`. The app needs to
+            include  `openid` scope for Microsoft Entra to issue an ID token. The app needs to include
             `offline_access` scope for Microsoft Entra to issue a refresh token.
         username:
           type: string
@@ -781,7 +781,7 @@ components:
         oob:
           type: string
           description: |-
-            The one-time passcode that the customer user received in their email. To resend a one-time 
+            The one-time passcode that the customer user received in their email. To resend a one-time
             passcode, the app needs to make a request to the `/challenge` endpoint again.
     Oauth2TokenResponse:
       type: object
@@ -794,7 +794,7 @@ components:
         access_token:
           type: string
           description: |-
-            The access token that the app requested from the `/token` endpoint. The app can use this 
+            The access token that the app requested from the `/token` endpoint. The app can use this
             access token to request access to secured resources such as web APIs.
         token_type:
           type: string
@@ -812,8 +812,8 @@ components:
           type: string
           description: |-
             An Oauth 2.0 refresh token. The app can use this token to acquire other access tokens
-            after the current access token expires. Refresh tokens are long-lived. They can maintain 
-            access to resources for extended periods. For more detail on refreshing an access token, 
+            after the current access token expires. Refresh tokens are long-lived. They can maintain
+            access to resources for extended periods. For more detail on refreshing an access token,
             refer to Entra documentation.
 
             Note: Only issued if `offline_access` scope was requested.
@@ -821,7 +821,7 @@ components:
           type: string
           description: |-
             A JSON Web Token (Jwt) used to identify the customer user. The app can decode the token
-            to read information about the user who signed in. The app can cache the values and display 
+            to read information about the user who signed in. The app can cache the values and display
             them, and confidential clients can use this token for authorization. For more information
             about ID tokens, refer to Entra documentation
 
@@ -896,7 +896,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -904,7 +904,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -918,7 +918,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -952,8 +952,8 @@ components:
           type: integer
           format: int32
           description: |-
-            The one-time passcode that the customer user received in their email. 
-            To resend a one-time passcode, the app needs to make a request to 
+            The one-time passcode that the customer user received in their email.
+            To resend a one-time passcode, the app needs to make a request to
             the `/challenge` endpoint again.
     ResetPasswordContinueResponse:
       type: object
@@ -967,7 +967,7 @@ components:
           type: integer
           format: int32
           description: |-
-            Time in seconds before the continuation_token expires. The maximum 
+            Time in seconds before the continuation_token expires. The maximum
             value of `expires_in` is 600 seconds.
     ResetPasswordContinueSubErrorCode:
       type: string
@@ -1026,7 +1026,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -1034,7 +1034,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -1048,7 +1048,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -1144,7 +1144,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -1152,7 +1152,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -1166,7 +1166,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -1198,7 +1198,7 @@ components:
           type: string
           description: |-
             A space-separated list of authorization challenge type strings that
-            the app supports such as * "`oob` `password` `redirect`". The list must * always include the `redirect` challenge type. For this request, the 
+            the app supports such as * "`oob` `password` `redirect`". The list must * always include the `redirect` challenge type. For this request, the
             value is expected to contain "`oob` `redirect`".
     ResetPasswordStartResponse:
       type: object
@@ -1261,7 +1261,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -1269,7 +1269,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -1283,7 +1283,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -1389,7 +1389,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -1397,7 +1397,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -1411,7 +1411,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -1486,7 +1486,7 @@ components:
               description: |-
                 Continuation token that Microsoft Entra returns.
 
-                NOTE: This parameter is included in the response when the error parameter's value is 
+                NOTE: This parameter is included in the response when the error parameter's value is
                 `attributes_required`, `verification_required`, or `attribute_validation_failed`.
             required_attributes:
               type: array
@@ -1494,7 +1494,7 @@ components:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
                 A list (array of objects) of attributes that the app needs to submit next call to continue.
-                Microsoft Entra includes this parameter in its response when the error parameter's 
+                Microsoft Entra includes this parameter in its response when the error parameter's
                 value is `attributes_required`.
             invalid_attributes:
               type: array
@@ -1508,7 +1508,7 @@ components:
               items:
                 $ref: '#/components/schemas/ErrorAttribute'
               description: |-
-                A list (array of objects) of attribute key names that must be verified. This parameter is included 
+                A list (array of objects) of attribute key names that must be verified. This parameter is included
                 in the response when the error parameter's value is `verification_required`.
           allOf:
             - $ref: '#/components/schemas/TypeSpec.Http.BadRequestResponse'
@@ -1540,16 +1540,16 @@ components:
           allOf:
             - $ref: '#/components/schemas/GrantType'
           description: |-
-            A request to the `/continue` endpoint can be used to submit one-time passcode, 
-            password, or user attributes. In this case, the grant_type value is used to differentiate 
-            between these three use cases. The possible values for the grant_type are `oob`, `password`, 
+            A request to the `/continue` endpoint can be used to submit one-time passcode,
+            password, or user attributes. In this case, the grant_type value is used to differentiate
+            between these three use cases. The possible values for the grant_type are `oob`, `password`,
             `attributes`.
         oob:
           type: integer
           format: int32
           description: |-
-            The one-time passcode that the customer user received in their email. 
-            To resend a one-time passcode, the app needs to make a request to 
+            The one-time passcode that the customer user received in their email.
+            To resend a one-time passcode, the app needs to make a request to
             the `/signup/v1.0/challenge` endpoint again.
 
             NOTE: Required when `grant_type` is `oob`.
@@ -1558,17 +1558,17 @@ components:
           description: |-
             The password value that the app collects from the customer user. It's your responsibility
             to confirm that the user is aware of the password they want to use by providing the password
-            confirm field in the app's UI. You must also ensure that the user is aware of what constitutes a 
+            confirm field in the app's UI. You must also ensure that the user is aware of what constitutes a
             strong password per your organization's policy.
 
             NOTE: Required when `grant_type` is `password`.
         attributes:
           type: string
           description: |-
-            The user attributes values that the app collects from the customer user. The value is a string, 
-            but formatted as a JSON object whose key values are programmable name of user attributes. These 
-            attributes can be built in or custom, and required or optional. The key names of the object 
-            depend on the attributes that the administrator configured in Microsoft Entra admin center. 
+            The user attributes values that the app collects from the customer user. The value is a string,
+            but formatted as a JSON object whose key values are programmable name of user attributes. These
+            attributes can be built in or custom, and required or optional. The key names of the object
+            depend on the attributes that the administrator configured in Microsoft Entra admin center.
 
             NOTE: Required when `grant_type` is `attributes`.
 
@@ -1610,9 +1610,9 @@ components:
         challenge_type:
           type: string
           description: |-
-            A space-separated list of authorization challenge type strings that the app supports such as 
-            "`oob` `password` `redirect`". The list must always include the redirect challenge type. The 
-            value is expected to be "`oob` `redirect`"" or "`oob` `password` `redirect`"" for email with 
+            A space-separated list of authorization challenge type strings that the app supports such as
+            "`oob` `password` `redirect`". The list must always include the redirect challenge type. The
+            value is expected to be "`oob` `redirect`"" or "`oob` `password` `redirect`"" for email with
             password authentication method.
         password:
           type: string
@@ -1620,7 +1620,7 @@ components:
             The password value that the app collects from the customer user. You can submit a user's password
             via the `/signup/v1.0/start` or later in the `/signup/v1.0/continue` endpoint. It's your responsibility
             to confirm that the user is aware of the password they want to use by providing the password
-            confirm field in the app's UI. You must also ensure that the user is aware of what constitutes a 
+            confirm field in the app's UI. You must also ensure that the user is aware of what constitutes a
             strong password per your organization's policy. Learn more about Microsoft Entra's password policies.
 
             NOTE: This parameter is only applicable for email with password authentication method.
@@ -1629,14 +1629,14 @@ components:
           description: |-
             The user attributes values that the app collects from the customer user. The value is a string, but
             formatted as a JSON object whose key values are programmable name of user attributes. These attributes
-            can be built in or custom, and required or optional. The key names of the object depend on the 
+            can be built in or custom, and required or optional. The key names of the object depend on the
             attributes that the administrator configured in Microsoft Entra admin center. You can submit some or
-            all user attributes via the `/signup/v1.0/start` endpoint or later in the `/signup/v1.0/continue` endpoint. 
+            all user attributes via the `/signup/v1.0/start` endpoint or later in the `/signup/v1.0/continue` endpoint.
 
             If you submit all the required attributes via the `/signup/v1.0/start` endpoint, you don't need to submit
             any attributes in the /signup/v1.0/continue endpoint. However, if you submit some required attributes
-            via `/signup/v1.0/start` endpoint, you can submit the remaining required attributes later in the 
-            `/signup/v1.0/continue` endpoint. 
+            via `/signup/v1.0/start` endpoint, you can submit the remaining required attributes later in the
+            `/signup/v1.0/continue` endpoint.
 
             NOTE: Microsoft Entra ignores any attributes that you submit, which don't exist.
     TenantId:
@@ -1675,11 +1675,3 @@ components:
       properties:
         continuationToken:
           type: string
-servers:
-  - url: https://{tenant_subdomain}.ciamlogin.com/{tenant_id}
-    description: Native Authentication API for Microsoft Entra External ID
-    variables:
-      tenant_subdomain:
-        default: ''
-      tenant_id:
-        default: ''

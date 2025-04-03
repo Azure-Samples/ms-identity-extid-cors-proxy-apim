@@ -2,7 +2,6 @@
     <!-- Throttle, authorize, validate, cache, or transform the requests -->
     <inbound>
         <base />
-        <set-backend-service base-url="https://{{tenantSubdomain}}.ciamlogin.com/{{tenantSubdomain}}.onmicrosoft.com/" />
         <cors allow-credentials="false">
             <allowed-origins>
                 <origin>{{corsAllowedOrigin}}</origin>
