@@ -42,7 +42,8 @@ jobs:
           PSRULE_CONFIGURATION_AZURE_BICEP_FILE_EXPANSION: 'true'
           PSRULE_CONFIGURATION_AZURE_BICEP_FILE_EXPANSION_TIMEOUT: '30'
 
-      - name: Upload results to security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: reports/ps-rule-results.sarif
+      # TODO: Reenable once moved to Azure-Samples
+      # - name: Upload results to security tab
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: reports/ps-rule-results.sarif
