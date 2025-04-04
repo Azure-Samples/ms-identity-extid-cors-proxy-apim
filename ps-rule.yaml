@@ -1,0 +1,36 @@
+#
+# PSRule configuration
+#
+
+# Please see the documentation for all configuration options:
+# https://aka.ms/ps-rule/options
+
+requires:
+  PSRule: '@pre >=2.8.1'
+  PSRule.Rules.Azure: '>=1.40.0'
+
+# Automatically use rules for Azure.
+include:
+  module:
+  - PSRule.Rules.Azure
+
+rule:
+  # Enable all rules in the Azure Pillar.
+  exclude:
+  - Azure.APIM.ProductSubscription
+  - Azure.APIM.ProductApproval
+  - Azure.APIM.AvailabilityZone # Not supported if SKU is Consumption.
+  - Azure.APIM.MultiRegion # Not supported if SKU is Consumption.
+  - Azure.APIM.Ciphers # Not supported if SKU is Consumption.
+  - Azure.APIM.DefenderCloud
+  - Azure.APIM.EncryptValues # TODO - Not a secret, but good practice
+
+input:
+  pathIgnore:
+  - '**/*'
+  - '!infra/main.test.bicep'
+
+configuration:
+  # Enable expansion of .bicepparam files.
+  AZURE_BICEP_PARAMS_FILE_EXPANSION: true
+  AZURE_BICEP_FILE_EXPANSION: true

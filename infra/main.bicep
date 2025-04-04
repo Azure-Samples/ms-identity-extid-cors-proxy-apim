@@ -32,10 +32,9 @@ param apimSku string = 'Consumption'
 @description('The number of instances of the API Management service. This parameter is only used when the SKU is not Consumption.')
 param apimSkuCount int = 0
 
-
-param apiName string = 'NativeAuth'
+param apiName string = 'Microsoft Entra External ID Native Authentication APIs'
 param productName string = 'APIM-NATIVE_AUTH'
-param productDescription string = 'Entra External ID Native Auth APIs'
+param productDescription string = 'CORS Proxy for Entra External ID Native Authentication APIs'
 
 // Resource Naming
 param resourceGroupName string = ''
@@ -43,13 +42,10 @@ param logAnalyticsWorkspaceName string = ''
 param applicationInsightsName string = ''
 param apimName string = ''
 
-
 var abbrs = loadJsonContent('./abbreviations.json')
-
 var tags = {
   'azd-env-name': environmentName
 }
-
 
 // A unique token to be used in naming resources.
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -60,45 +56,108 @@ resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   tags: tags
 }
 
-module apim 'core/gateway/apim.bicep' = {
+var openapiSpec = loadTextContent('./openapi.yaml')
+var headerPolicyXml = loadTextContent('./apim-api-policy.xml')
+
+module apim 'br/public:avm/res/api-management/service:0.9.1' = {
   name: 'apim'
   scope: rg
   params: {
+    // Required parameters
     name: !empty(apimName) ? apimName : '${abbrs.apiManagementService}${resourceToken}'
     location: location
     tags: tags
     sku: apimSku
-    skuCount: apimSkuCount
+    skuCapacity: apimSkuCount
     publisherEmail: apimPublisherEmail
     publisherName: apimPublisherName
-    applicationInsightsName: monitoring.outputs.applicationInsightsName
+
+    namedValues: [
+      {
+        name: 'corsAllowedOrigin'
+        displayName: 'corsAllowedOrigin'
+        value: corsAllowedOrigin
+      }
+    ]
+
+    apis: [
+      {
+        name: apiName
+        displayName: apiName
+        apiDescription: productDescription
+        path: '/'
+        format: 'openapi'
+        value: openapiSpec
+        protocols: [
+          'https'
+        ]
+        apiType: 'http'
+        serviceUrl: 'https://${tenantSubdomain}.ciamlogin.com/${tenantSubdomain}.onmicrosoft.com/'
+        policies: [
+          {
+            format: 'xml'
+            value: headerPolicyXml
+          }
+        ]
+      }
+    ]
+
+    products: [
+      {
+        apis: [
+          {
+            name: apiName
+          }
+        ]
+        name: productName
+        displayName: productName
+        description: productDescription
+        subscriptionRequired: false
+        state: 'published'
+
+      }
+    ]
+
+    loggers: [
+      {
+        name: 'appinsights-logger'
+        loggerType: 'applicationInsights'
+        credentials: {
+          instrumentationKey: appinsights.outputs.instrumentationKey
+        }
+        isBuffered: false
+        targetResourceId: appinsights.outputs.resourceId
+      }
+    ]
+
+    managedIdentities: {
+      systemAssigned: true
+    }
   }
 }
 
-module nativeauth 'app/nativeauth-apim.bicep' = {
-  name: 'nativeauth'
+module loganalytics 'br/public:avm/res/operational-insights/workspace:0.11.1' = {
+  name: 'loganalytics'
   scope: rg
-  params: {
-    apimServiceName: apim.outputs.apimServiceName
-    applicationInsightsName: monitoring.outputs.applicationInsightsName
-    apiName: apiName
-    productName: productName
-    productDescription: productDescription
-    corsAllowedOrigin: corsAllowedOrigin
-    tenantSubdomain: tenantSubdomain
-  }
-}
 
-module monitoring 'core/monitor/monitoring.bicep' = {
-  name: 'monitoring'
-  scope: rg
   params: {
+    // Required parameters
+    name: !empty(logAnalyticsWorkspaceName) ? logAnalyticsWorkspaceName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
     location: location
     tags: tags
-    logAnalyticsName: !empty(logAnalyticsWorkspaceName) ? logAnalyticsWorkspaceName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
-    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-    applicationInsightsDashboardName: '${abbrs.portalDashboards}${resourceToken}'
   }
 }
 
-output CORS_PROXY_ENDPOINT string = nativeauth.outputs.endpoint
+module appinsights 'br/public:avm/res/insights/component:0.6.0' = {
+  name: 'appinsights'
+  scope: rg
+  params: {
+    name: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
+    location: location
+    tags: tags
+    applicationType: 'web'
+    workspaceResourceId: loganalytics.outputs.resourceId
+  }
+}
+
+output CORS_PROXY_ENDPOINT string = 'https://${apim.outputs.name}.azure-api.net'
