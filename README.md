@@ -16,7 +16,7 @@ The template will create an Azure API Management instance which will proxy all r
 1. Run the following command to initialize the project.
 
 ```bash
-azd init --template https://github.com/jamesc/ms-identity-ciam-cors-proxy-apim
+azd init --template https://github.com/azure-samples/ms-identity-ciam-cors-proxy-apim
 ```
 
 This command will clone the code to your current folder and prompt you for the following information:
